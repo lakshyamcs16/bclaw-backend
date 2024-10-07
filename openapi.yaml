@@ -1,0 +1,140 @@
+openapi: 3.0.0
+info:
+  title: BC Laws Summarization API
+  version: 1.0.0
+  description: API for searching and summarizing BC Provincial legislation documents and related policy and legislative materials 
+
+servers:
+  - url: http://3.81.73.111:8000
+    description: Production server
+  - url: http://localhost:8000
+    description: Development server
+
+paths:
+  /api/search/{jurisdiction}:
+    get:
+      summary: Search in Public Statues and Regulations
+      description: Retrieve a list of documents with title containing the query in a given jurisdiction
+      tags:
+        - Search
+      parameters:
+        - in: path
+          name: jurisdiction
+          required: true
+          schema:
+            type: string
+          description: Jurisdiction to search in
+        - in: query
+          name: query
+          required: true
+          schema:
+            type: string
+          description: The query to search for
+        - in: query
+          name: page
+          required: true
+          schema:
+            type: number
+          description: Page number
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  page:
+                    type: number
+                  per_page:
+                    type: number
+                  total:
+                    type: number
+                  total_pages:
+                    type: number
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        title:
+                          type: string
+                        location:
+                          type: string
+                        document_id:
+                          type: string
+                        index_id:
+                          type: string
+
+        '404':
+          description: No results found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+  /api/summarize/{jurisdiction}/{documentId}:
+    get:
+      summary: Summarize the document under a jurisdiction
+      description: Retrieve the document with the given document ID and summarize the content
+      tags:
+        - Summarize
+      parameters:
+        - in: path
+          name: jurisdiction
+          required: true
+          schema:
+            type: string
+          description: Jurisdiction of the document
+        - in: path
+          name: documentId
+          required: true
+          schema:
+            type: string
+          description: ID of the document
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  url:
+                    type: string
+                  content:
+                    type: string
+                  time_taken:
+                    type: number
+        '404':
+          description: No results found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+  
+components:
+  schemas: {}

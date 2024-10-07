@@ -1,0 +1,8 @@
+.env
+
+# build
+/dist
+dist.zip
+
+# node modules
+/node_modules
