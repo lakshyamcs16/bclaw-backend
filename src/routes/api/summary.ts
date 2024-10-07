@@ -24,7 +24,9 @@ router.get(
       const { jurisdiction, documentId } = req.params;
 
       filepath = await fetchDocument(jurisdiction, documentId);
+      const startTime = performance.now();
       const summarizedContent = await summarizeDocument(filepath);
+      const timeTaken = performance.now() - startTime;
 
       // Send the response with the search results
       res
@@ -34,6 +36,7 @@ router.get(
           jurisdiction
         )}/${encodeURIComponent(documentId)}`,
         summary: summarizedContent,
+        time_taken: parseInt(timeTaken.toFixed(2), 10)
       });
     } catch (err) {
       // Pass any errors to the error handling middleware
