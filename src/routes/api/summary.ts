@@ -10,8 +10,8 @@ import { summarizeDocument } from "../../utilities/summary";
 // Create a new Express router
 const router: Router = Router();
 
-// @route   GET api/search/{jurisdiction}?query=<search_query>&page=<page_number>
-// @desc    Get results for a given query and page under the {jurisdiction}
+// @route   GET api/summarize/{jurisdiction}/{documentId}
+// @desc    Get a summary of the given document
 // @access  Public
 router.get(
   "/:jurisdiction/:documentId",
