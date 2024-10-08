@@ -15,41 +15,64 @@ export const summarizeDocument = async (filepath: string): Promise<string> => {
   }
 
   const pathComponents = filepath.split("/");
+  let fileManager: GoogleAIFileManager | null = null;
+  let uploadedFileName: string | null = null;
 
-  // Initialize GoogleGenerativeAI with your API_KEY.
-  const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
+  try {
+    // Check if API key is set
+    if (!process.env.GOOGLE_API_KEY) {
+      throw new Error("GOOGLE_API_KEY is not set in environment variables");
+    }
 
-  // Initialize GoogleAIFileManager with your API_KEY.
-  const fileManager = new GoogleAIFileManager(process.env.GOOGLE_API_KEY);
+    // Initialize GoogleGenerativeAI with your API_KEY.
+    const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
 
-  const model = genAI.getGenerativeModel({
-    // Choose a Gemini model.
-    model: "gemini-1.5-flash",
-  });
+    // Initialize GoogleAIFileManager with your API_KEY.
+    fileManager = new GoogleAIFileManager(process.env.GOOGLE_API_KEY);
 
-  const uploadResponse = await fileManager.uploadFile(filepath, {
-    mimeType: "text/xml",
-    displayName: pathComponents[pathComponents.length - 1],
-  });
+    const model = genAI.getGenerativeModel({
+      model: "gemini-1.5-flash",
+    });
 
-  // View the response.
-  console.log(
-    `Uploaded file ${uploadResponse.file.displayName} as: ${uploadResponse.file.uri}`
-  );
+    const uploadResponse = await fileManager.uploadFile(filepath, {
+      mimeType: "text/xml",
+      displayName: pathComponents[pathComponents.length - 1],
+    });
 
-  // Generate content using text and the URI reference for the uploaded file.
-  const result = await model.generateContent([
-    {
-      fileData: {
-        mimeType: uploadResponse.file.mimeType,
-        fileUri: uploadResponse.file.uri,
+    uploadedFileName = uploadResponse.file.name;
+
+    console.log(
+      `Uploaded file ${uploadResponse.file.displayName} as: ${uploadResponse.file.uri}`
+    );
+
+    // Generate content using text and the URI reference for the uploaded file.
+    const result = await model.generateContent([
+      {
+        fileData: {
+          mimeType: uploadResponse.file.mimeType,
+          fileUri: uploadResponse.file.uri,
+        },
       },
-    },
-    { text: prompt },
-  ]);
+      { text: prompt },
+    ]);
 
-  await fileManager.deleteFile(uploadResponse.file.name);
-  console.log(`Deleted ${uploadResponse.file.displayName}`);
+    if (!result.response) {
+      throw new Error("Failed to generate content");
+    }
 
-  return result.response.text();
+    return result.response.text();
+  } catch (error) {
+    console.error("Error in summarizeDocument:", error);
+    throw error; // throw the error after logging
+  } finally {
+    // delete the uploaded file if it exists
+    if (fileManager && uploadedFileName) {
+      try {
+        await fileManager.deleteFile(uploadedFileName);
+        console.log(`Deleted ${uploadedFileName}`);
+      } catch (deleteError) {
+        console.error("Error deleting file:", deleteError);
+      }
+    }
+  }
 };
