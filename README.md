@@ -12,3 +12,7 @@ Backend for BC Law [summarization tool](https://lakshyamcs16.github.io/bclaw-fro
 4. [Deployment Pipeline](https://github.com/lakshyamcs16/bclaw-backend/blob/main/readme/deployment_pipeline.md)
 5. [Software Stack and features](https://github.com/lakshyamcs16/bclaw-backend/blob/main/readme/stack_recommendations.md)
 6. [Demonstration Plan](https://github.com/lakshyamcs16/bclaw-backend/blob/main/readme/demo_instructions.md)
+
+## API Documentation
+
+[Try out the APIs](https://3.81.73.111/docs/#/)
